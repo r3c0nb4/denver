@@ -1,0 +1,76 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BILLION	include/utils.h	5;"	d
+BILLION	src/utils.h	5;"	d
+BIN_DIR	prefetcher/Makefile	/^BIN_DIR = ..\/bin$/;"	m
+BIN_DIR	spectre/Makefile	/^BIN_DIR = ..\/bin$/;"	m
+BIN_DIR	spectreRSB/Makefile	/^BIN_DIR = ..\/bin$/;"	m
+CACHE_THRESHOLD	include/utils.h	/^uint64_t  CACHE_THRESHOLD = 0;$/;"	v
+CC	prefetcher/Makefile	/^CC = gcc$/;"	m
+CC	spectre/Makefile	/^CC = gcc$/;"	m
+CC	spectreRSB/Makefile	/^CC = gcc$/;"	m
+ITER	spectre/spectre.c	9;"	d	file:
+OBJS	prefetcher/Makefile	/^OBJS = $(patsubst $(SRC_DIR)\/%.c, $(BIN_DIR)\/%.o, $(SRCS))$/;"	m
+OBJS	spectre/Makefile	/^OBJS = $(patsubst $(SRC_DIR)\/%.c, $(BIN_DIR)\/%.o, $(SRCS))$/;"	m
+OBJS	spectreRSB/Makefile	/^OBJS = $(patsubst $(SRC_DIR)\/%.c, $(BIN_DIR)\/%.o, $(SRCS))$/;"	m
+PREFETCH	include/utils.h	/^}PREFETCH;$/;"	t	typeref:struct:_prefetch_result
+PREFETCH	src/utils.h	/^}PREFETCH;$/;"	t	typeref:struct:_prefetch_result
+RELOAD_BUF_SIZE	spectre/spectre.c	8;"	d	file:
+RELOAD_BUF_SIZE	src/utils.h	6;"	d
+SECRET_LENGTH	spectreRSB/spectre.c	19;"	d	file:
+SRCS	prefetcher/Makefile	/^SRCS = $(wildcard $(SRC_DIR)\/*.c)$/;"	m
+SRCS	spectre/Makefile	/^SRCS = $(wildcard $(SRC_DIR)\/*.c)$/;"	m
+SRCS	spectreRSB/Makefile	/^SRCS = $(wildcard $(SRC_DIR)\/*.c)$/;"	m
+SRC_DIR	prefetcher/Makefile	/^SRC_DIR = .\/$/;"	m
+SRC_DIR	spectre/Makefile	/^SRC_DIR = .\/$/;"	m
+SRC_DIR	spectreRSB/Makefile	/^SRC_DIR = .\/$/;"	m
+STRIDE	spectre/spectre.c	7;"	d	file:
+STRIDE	src/utils.h	7;"	d
+TARGET	prefetcher/Makefile	/^TARGET = $(BIN_DIR)\/prefetcher$/;"	m
+TARGET	spectre/Makefile	/^TARGET = $(BIN_DIR)\/spectre$/;"	m
+TARGET	spectreRSB/Makefile	/^TARGET = $(BIN_DIR)\/spectreRSB$/;"	m
+_UTILS_H	include/utils.h	2;"	d
+_UTILS_H	src/utils.h	2;"	d
+_prefetch_result	include/utils.h	/^typedef struct _prefetch_result{$/;"	s
+_prefetch_result	src/utils.h	/^typedef struct _prefetch_result{$/;"	s
+aligned_buffer1	spectre/spectre.c	/^unsigned char aligned_buffer1[4096];$/;"	v
+aligned_buffer2	spectre/spectre.c	/^unsigned char aligned_buffer2[4096];$/;"	v
+barrier	include/utils.h	/^static inline __attribute__((always_inline)) void barrier(void){$/;"	f
+cacheflush	include/utils.h	/^static inline __attribute__((always_inline)) void cacheflush(void* address)$/;"	f
+clock_end	include/utils.h	/^void clock_end(struct timespec *end){$/;"	f
+clock_end	src/utils.h	/^void clock_end(struct timespec *end){$/;"	f
+clock_init	include/utils.h	/^void clock_init(struct timespec *start){$/;"	f
+clock_init	src/utils.h	/^void clock_init(struct timespec *start){$/;"	f
+cmp_uint64	src/utils.h	/^int cmp_uint64 (const void * a, const void * b)$/;"	f
+fake_buffer	spectre/spectre.c	/^uint8_t fake_buffer[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};$/;"	v
+flush	src/utils.h	/^static inline __attribute__((always_inline)) void flush(void* address)$/;"	f
+get_clock	include/utils.h	/^uint64_t get_clock(struct timespec start, struct timespec end){$/;"	f
+get_clock	src/utils.h	/^uint64_t get_clock(struct timespec start, struct timespec end){$/;"	f
+index_p1	spectre/spectre.c	/^unsigned int *index_p1 = &size;$/;"	v
+index_p2	spectre/spectre.c	/^unsigned int **index_p2 = &index_p1;$/;"	v
+index_p3	spectre/spectre.c	/^unsigned int ***index_p3 = &index_p2;$/;"	v
+iter	include/utils.h	7;"	d
+iter	src/utils.h	9;"	d
+leak_one_byte	spectre/spectre.c	/^void leak_one_byte(size_t target, uint8_t *byte) {$/;"	f
+leak_secret	spectreRSB/spectre.c	/^void __attribute__ ((noinline)) leak_secret(unsigned char *reloadbuffer, unsigned char *target_addr){$/;"	f
+main	prefetcher/prefetcher.c	/^int main(){$/;"	f
+main	spectre/spectre.c	/^int main(int argc, const char * * argv) {$/;"	f
+main	spectreRSB/spectre.c	/^int main(){$/;"	f
+main	src/main.c	/^int main(){$/;"	f
+measure_latency	spectre/spectre.c	/^uint64_t measure_latency() {$/;"	f
+nop	spectreRSB/spectre.c	/^void __attribute__((noinline))nop(){$/;"	f
+pick	spectre/spectre.c	/^volatile uint8_t pick = 0; $/;"	v
+pop_return	spectreRSB/spectre.c	/^void __attribute__ ((noinline))pop_return(){$/;"	f
+probe_size	include/utils.h	6;"	d
+probe_size	src/utils.h	8;"	d
+reloadbuffer	spectre/spectre.c	/^uint8_t reloadbuffer[RELOAD_BUF_SIZE];$/;"	v
+result	include/utils.h	/^  uint64_t result[iter];$/;"	m	struct:_prefetch_result
+result	src/utils.h	/^  uint64_t result[iter];$/;"	m	struct:_prefetch_result
+secret	spectre/spectre.c	/^char* secret = "_speculation_execute_";$/;"	v
+size	spectre/spectre.c	/^unsigned int size = 16;$/;"	v
+spectre_v1	spectre/spectre.c	/^void spectre_v1(size_t *index) {$/;"	f
+timed_read	include/utils.h	/^static uint64_t timed_read(volatile uint8_t *addr, struct timespec *start, struct timespec *end) {$/;"	f
