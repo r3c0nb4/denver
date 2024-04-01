@@ -1,8 +1,12 @@
 # runahead behavior
 
-## execution window size: about 1125
-This is completed.
+## execution window size:
 Still very interesting to check whether the execution window is depended on latency of load(using chaining to cause longer latency), or the execution windows is fixed?
+
+Some discoverings: 
+if merely use `if (index < size)`, the execution window is about `1134 nops + reload operation`	or `1000 adds + reload operation` or `4 divs + reload operation`. 
+
+It seems `sdiv` instruction's behavior is strange.
 ## data dependency
 Runahead will execute data dependent instructions, not merely execute load to warm cache.
 ```		

