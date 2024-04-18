@@ -39,6 +39,24 @@ reloadbuffer[value * stride]
 ```
 It possible that there will be two cache hit value: a fake one (from microarchitecture execution) and a true one (from architecture execution).
 
+```
+ 54     memset(buf, 0x11, sizeof(char) * 4096);
+ 55     cacheflush(&buf);
+ 56     barrier();
+ 57     for(volatile int z = 0; z < 100; z++){
+ 58 
+ 59     }
+ 60     barrier();
+ 61     //pick = reloadbuffer[0x90 << 12];
+ 62     *((volatile char*)0);
+ 63     while(1){
+ 64         pick = reloadbuffer[0x88 << 12];
+ 65         pick = reloadbuffer[*buf << 12];
+ 66         pick = reloadbuffer[0x66 << 12];
+
+```
+Most of time, we see signal: 0x88, 0x66. But sometimes (1%) we see 0x88, 0x11, 0x66
+
 ### How does denver treat specific instructions
 
 such as:
