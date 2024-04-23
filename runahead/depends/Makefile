@@ -12,10 +12,10 @@ TARGET = $(BIN_DIR)/depend
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -g $(OBJS) -o $@ -I ../include
+	$(CC) $(CFLAGS) -g $(OBJS) -o $@ -I ../include -fPIC
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -g -c $< -o $@ -I ../include
+	$(CC) $(CFLAGS) -g -c $< -o $@ -I ../include -fPIC
 
 clean:
 	rm -f $(OBJS) $(TARGET)

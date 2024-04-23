@@ -10,7 +10,7 @@
 #define RELOAD_BUF_SIZE STRIDE * 256
 #define ITER 1024
 
-static char buf[4096] __attribute__((aligned(4096))) = {0x99};
+static unsigned char buf[4096] __attribute__((aligned(4096))) = {0x99};
 uint8_t *reloadbuffer;
 volatile uint8_t pick;
 uint64_t measured_clock;
@@ -23,7 +23,8 @@ void handler(int sig)
 {
 	//printf("signal handler\n");
 	for(int i = 0; i < 256; i++){
-		idx = ((i * 167) + 13) & 255;
+		//idx = ((i * 167) + 13) & 255;
+		idx = i;
 		measured_clock = timed_read(&reloadbuffer[idx * STRIDE], &start, &end);
 		if(measured_clock <= 160){
 			//if(idx == 0x88 || idx == 0x99)
@@ -52,26 +53,24 @@ int main(){
 	}
 
 	memset(buf, 0x11, sizeof(char) * 4096);
-	cacheflush(&buf);
+	//cacheflush(&buf);
+	pick = reloadbuffer[0x11 << 12];
 	barrier();
 	for(volatile int z = 0; z < 100; z++){
 
 	}
+	barrier();
 	//pick = reloadbuffer[0x90 << 12];
 	*((volatile char*)0);
-	while(1){
-		pick = reloadbuffer[0x88 << 12];
-		pick = reloadbuffer[*buf << 12];
-		pick = reloadbuffer[0x66 << 12];
-	}
+	pick = reloadbuffer[*buf << 12];
+	asm volatile(
+		".rept 65\n"
+		"nop\n"
+		".endr\n"
+	);
+	pick = reloadbuffer[0x88 << 12];
+	//pick = reloadbuffer[0x66 << 12];
 		
-//		for (int i = 0; i < 256; i++)
-//		{
-//			index = ((i * 167) + 13) & 255;
-//			measured_clock = timed_read(&reloadbuffer[index * STRIDE], &start, &end);
-//			if (measured_clock <= 100){
-//				result[index]++; 
-//			}
-//		}	
+
 }
 

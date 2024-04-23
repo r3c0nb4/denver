@@ -1,357 +1,107 @@
-1
-signal handler
-exit
-2
-signal handler
-exit
-3
-signal handler
-exit
-4
-signal handler
-exit
-5
-signal handler
-exit
-6
-signal handler
-exit
-7
-signal handler
-exit
-8
-signal handler
-exit
-9
-signal handler
-exit
-10
-signal handler
-exit
-11
-signal handler
-exit
-12
-signal handler
-exit
-13
-signal handler
-exit
-14
-signal handler
-exit
-15
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-16
-signal handler
-exit
-17
-signal handler
-exit
-18
-signal handler
-exit
-19
-signal handler
-cache hit: 90
-exit
-20
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-21
-signal handler
-cache hit: 90
-exit
-22
-signal handler
-exit
-23
-signal handler
-cache hit: 90
-exit
-24
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-25
-signal handler
-exit
-26
-signal handler
-exit
-27
-signal handler
-cache hit: 90
-exit
-28
-signal handler
-exit
-29
-signal handler
-exit
-30
-signal handler
-exit
-31
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-32
-signal handler
-cache hit: 90
-exit
-33
-signal handler
-exit
-34
-signal handler
-cache hit: 90
-exit
-35
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-36
-signal handler
-cache hit: 90
-exit
-37
-signal handler
-exit
-38
-signal handler
-exit
-39
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-40
-signal handler
-cache hit: 90
-exit
-41
-signal handler
-cache hit: 90
-exit
-42
-signal handler
-exit
-43
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-44
-signal handler
-cache hit: 90
-exit
-45
-signal handler
-cache hit: 90
-exit
-46
-signal handler
-exit
-47
-signal handler
-exit
-48
-signal handler
-cache hit: 90
-exit
-49
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-50
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-51
-signal handler
-cache hit: 90
-exit
-52
-signal handler
-cache hit: 90
-exit
-53
-signal handler
-exit
-54
-signal handler
-exit
-55
-signal handler
-cache hit: 90
-exit
-56
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-57
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-58
-signal handler
-exit
-59
-signal handler
-cache hit: 90
-exit
-60
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-61
-signal handler
-exit
-62
-signal handler
-cache hit: 90
-exit
-63
-signal handler
-exit
-64
-signal handler
-exit
-65
-signal handler
-cache hit: 90
-exit
-66
-signal handler
-exit
-67
-signal handler
-cache hit: 90
-exit
-68
-signal handler
-exit
-69
-signal handler
-exit
-70
-signal handler
-exit
-71
-signal handler
-exit
-72
-signal handler
-cache hit: 90
-exit
-73
-signal handler
-exit
-74
-signal handler
-exit
-75
-signal handler
-cache hit: 90
-exit
-76
-signal handler
-exit
-77
-signal handler
-exit
-78
-signal handler
-cache hit: 90
-exit
-79
-signal handler
-exit
-80
-signal handler
-exit
-81
-signal handler
-exit
-82
-signal handler
-exit
-83
-signal handler
-exit
-84
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-85
-signal handler
-exit
-86
-signal handler
-exit
-87
-signal handler
-cache hit: 98
-cache hit: 90
-exit
+➜  depends git:(main) ✗ ./init.sh
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 88
-signal handler
-cache hit: 90
-exit
-89
-signal handler
-exit
-90
-signal handler
-cache hit: 90
-exit
-91
-signal handler
-cache hit: 98
-cache hit: 90
-exit
-92
-signal handler
-exit
-93
-signal handler
-cache hit: 90
-exit
-94
-signal handler
-exit
-95
-signal handler
-exit
-96
-signal handler
-exit
-97
-signal handler
-cache hit: 90
-exit
-98
-signal handler
-cache hit: 90
-exit
-99
-signal handler
-exit
-100
-signal handler
-exit
+
+
+
+88
+
+88
+
+
+
+
+88
+
+
+
+
+
+
+
+
+88
+
+
+
+
+
+88
+
+
+
+
+
+88
+
+
+
+
+88
+
+88
+
+
+88
+
+
+88
+
+
+
+88
+
+
+88
+
+
+88
+
+
+
+
+
+
+
+
+
+
+
+88
+
+
+
+
+
+
+
+
+88
+
+
+
+
+
+
+88
+
