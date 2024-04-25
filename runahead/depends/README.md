@@ -1,5 +1,6 @@
-Runahead dependency
+##Runahead dependency
 
+## disable flush
 ```
 56     //cacheflush(&buf);
  57     pick = reloadbuffer[0x11 << 12];
@@ -20,6 +21,8 @@ Runahead dependency
 ```
 After line 64 which causes error, the first cache miss is `reloadbuff[0x88 << 12]`.
 In this case, most of time, we just see signal `0x11` cache hit.
+
+## enable flush
 
 ```
  56     cacheflush(&buf);
@@ -42,3 +45,6 @@ In this case, most of time, we just see signal `0x11` cache hit.
 
 ```
 We change the code a little bit, this time `buff` is not in the cache. We will see more `0x88` cache hit in the signal, however, we do not see any `0x11`. 
+
+### Output
+

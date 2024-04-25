@@ -5,10 +5,20 @@
 #include <sys/mman.h>
 #include <signal.h>
 #include "utils.h"
+#ifndef N
+#define N 10
+#endif
 
 #define STRIDE 4096
 #define RELOAD_BUF_SIZE STRIDE * 256
 #define ITER 1024
+#define NOPS(n) \
+    asm volatile( \
+        ".rept %0\n" \
+        "nop\n" \
+        ".endr\n" \
+        :: "i" (n) \
+    )
 
 static unsigned char buf[4096] __attribute__((aligned(4096))) = {0x99};
 uint8_t *reloadbuffer;
@@ -28,7 +38,7 @@ void handler(int sig)
 		measured_clock = timed_read(&reloadbuffer[idx * STRIDE], &start, &end);
 		if(measured_clock <= 160){
 			//if(idx == 0x88 || idx == 0x99)
-				printf("%x\n", idx);
+				printf("%x ", idx);
 		}
 	}
 	
@@ -39,7 +49,7 @@ void handler(int sig)
 int main(){
 	struct sigaction sa;
     memset (&sa, '\0', sizeof(sa));
-    sa.sa_sigaction = &handler;
+    sa.sa_sigaction = (void (*)(int, siginfo_t *, void *))&handler;
     sa.sa_flags = SA_SIGINFO;
     sigaction(SIGSEGV, &sa, NULL); 
 	reloadbuffer = (unsigned char *)mmap(0, RELOAD_BUF_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
@@ -63,14 +73,8 @@ int main(){
 	//pick = reloadbuffer[0x90 << 12];
 	*((volatile char*)0);
 	pick = reloadbuffer[*buf << 12];
-	asm volatile(
-		".rept 65\n"
-		"nop\n"
-		".endr\n"
-	);
+	NOPS(N);
 	pick = reloadbuffer[0x88 << 12];
 	//pick = reloadbuffer[0x66 << 12];
-		
-
 }
 
