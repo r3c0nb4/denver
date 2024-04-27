@@ -18,30 +18,47 @@ with open("output_nonflush", "r") as f:
         column_x88_nonflush.append(columns[1])
         column_x11_nonflush.append(columns[2])
 
+for i in range(len(column_x88_flush)):
+    column_x88_flush[i] = int(column_x88_flush[i]) / 1000
+
+for i in range(len(column_x11_flush)):
+    column_x11_flush[i] = int(column_x11_flush[i]) / 1000
+
+for i in range(len(column_x88_nonflush)):
+    column_x88_nonflush[i] = int(column_x88_nonflush[i]) / 1000
+
+for i in range(len(column_x11_nonflush)):
+    column_x11_nonflush[i] = int(column_x11_nonflush[i]) / 1000
+
 print(column_x88_flush, column_x11_flush)
 print(column_x88_nonflush, column_x11_nonflush)
 
-x = np.arange(10, 81)
+flush_data = {
+    'non data dependency': column_x88_flush,
+    'data dependency': column_x11_flush
+}
 
-# 绘制散点图
-plt.figure(figsize=(10, 6))
+nonflush_data = {
+    'non data dependency': column_x88_nonflush,
+    'data dependency': column_x11_nonflush
+}
 
-# 绘制 x88 flush 数据
-plt.scatter(x, np.histogram(column_x88_flush, bins=range(10, 82))[0], color='blue', marker='o', label='x88 flush')
+bar_width = 0.35
+x = np.arange(10, 81, 1)
 
-# 绘制 x11 flush 数据
-plt.scatter(x, np.histogram(column_x11_flush, bins=range(10, 82))[0], color='red', marker='s', label='x11 flush')
+fig, axes = plt.subplots(2, 1, figsize=(10, 8))
 
-# 绘制 x88 nonflush 数据
-plt.scatter(x, np.histogram(column_x88_nonflush, bins=range(10, 82))[0], color='green', marker='^', label='x88 nonflush')
+for i, (label, data) in enumerate(flush_data.items()):
+    axes[0].bar(x + i*bar_width*1.5, data, bar_width, label=label)
+axes[0].set_title('Flush')
+axes[0].legend()
+axes[0].set_xlim(9.5, 80.5)
 
-# 绘制 x11 nonflush 数据
-plt.scatter(x, np.histogram(column_x11_nonflush, bins=range(10, 82))[0], color='purple', marker='x', label='x11 nonflush')
-
-plt.xlabel('Value')
-plt.ylabel('Data')
-plt.title('Scatter Plot of x88 and x11 Data')
-plt.legend()
+for i, (label, data) in enumerate(nonflush_data.items()):
+    axes[1].bar(x + i*bar_width*1.5, data, bar_width, label=label)
+axes[1].set_title('Nonflush')
+axes[1].legend()
+axes[1].set_xlim(9.5, 80.5)
 
 plt.tight_layout()
 plt.show()
