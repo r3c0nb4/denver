@@ -63,8 +63,8 @@ int main(){
 	}
 
 	memset(buf, 0x11, sizeof(char) * 4096);
-	//cacheflush(&buf);
-	pick = reloadbuffer[0x11 << 12];
+	cacheflush(&buf);
+	//pick = reloadbuffer[0x11 << 12];
 	barrier();
 	for(volatile int z = 0; z < 100; z++){
 

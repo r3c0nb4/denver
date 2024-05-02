@@ -1,1 +1,0 @@
-cmd_/home/r3c0n/denver/performance_counter/performance_counter.ko := ld -EL -r  -T ./scripts/module-common.lds -T ./arch/arm64/kernel/module.lds --build-id  -o /home/r3c0n/denver/performance_counter/performance_counter.ko /home/r3c0n/denver/performance_counter/performance_counter.o /home/r3c0n/denver/performance_counter/performance_counter.mod.o ;  true

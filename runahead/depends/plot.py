@@ -59,6 +59,5 @@ for i, (label, data) in enumerate(nonflush_data.items()):
 axes[1].set_title('Nonflush')
 axes[1].legend()
 axes[1].set_xlim(9.5, 80.5)
-
 plt.tight_layout()
 plt.show()

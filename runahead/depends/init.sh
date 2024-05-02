@@ -13,7 +13,7 @@ do
         ((count++))
     fi
 done
-echo -n "$count\t" >> output_nonflush 
+echo -n "$count\t" >> output_flush2
 echo -n "$count\t"
 
 count=0
@@ -23,6 +23,6 @@ do
         ((count++))
     fi
 done
-echo "$count" >> output_nonflush
+echo "$count" >> output_flush2
 echo "$count" 
 

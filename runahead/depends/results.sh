@@ -5,6 +5,6 @@ do
 	export N=$i
 	make clean
 	make
-	echo -n "$i\t" >> output_nonflush
+	echo -n "$i\t" >> output_flush2
 	/bin/zsh ./init.sh
 done
