@@ -13,26 +13,28 @@ int main(){
      * chaining cache miss 
     */
    
-   for(int i = 0; i < ITER; i++){
-        asm volatile(
-    	    "ldr x10, %[data]\n"
-		    "mov x11, 2\n"
-            :: [data] "m" (counter)
-        );
-		for(volatile int z = 0; z < 100; z++){
-        }
+	for(int i = 0; i < ITER; i++){
         init = get_cycles();
         asm volatile(
-			".rept 50\n"
-			"sdiv x10, x10, x11\n"
+			".rept 1000\n"
+			"nop\n"
 			".endr\n"
 		);
         end = get_cycles();
 
-        printf("latency sdivs: %ld\n", end - init);
-   }
+        printf("latency 1000 nops: %ld\n", end - init);
 
+	}
+        init = get_cycles();
+        asm volatile(
+			".rept 1000\n"
+			"nop\n"
+			".endr\n"
+		);
+        end = get_cycles();
 
+        printf("latency 1000 nops single: %ld\n", end - init);
+	
     return 0;
 
 }

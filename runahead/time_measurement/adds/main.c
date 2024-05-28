@@ -18,18 +18,20 @@ int main(){
     	    "ldr x10, %[data]\n"
 		    "mov x11, 2\n"
             :: [data] "m" (counter)
+			:"x10", "x11"
         );
 		for(volatile int z = 0; z < 100; z++){
         }
         init = get_cycles();
         asm volatile(
-			".rept 800\n"
+			".rept 1000\n"
 			"adds x10, x10, x11\n"
 			".endr\n"
+			:::"x10", "x11"
 		);
         end = get_cycles();
 
-        printf("latency 100 adds: %ld\n", end - init);
+        printf("latency 1000 adds: %ld\n", end - init);
    }
 
 
