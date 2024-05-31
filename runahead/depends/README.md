@@ -34,7 +34,7 @@ complete!
 
 ITER + 6
 18 1c 23 29 34 3e 47 48 4c 4d 53 5b 5c 64 65 6d 6e 77 80 84 85 8e 97 98 a7 af b6 c7 ce de df f0 f6 fe ff 
-  # ) 4 > G H L M S [ \ d e m n w � � � � � � � � � � � � � � � � � 
+) 4 > G H L M S [ \ d e m n w � � � � � � � � � � � � � � � � � 
 complete!
 
 
