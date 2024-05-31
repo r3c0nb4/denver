@@ -6,7 +6,7 @@
 #include <signal.h>
 #include "utils.h"
 #ifndef N
-#define N 10
+#define N 105
 #endif
 
 #define STRIDE 4096
@@ -22,7 +22,6 @@
 
 static unsigned char buf[4096] __attribute__((aligned(4096))) = {0x99};
 uint8_t *reloadbuffer;
-volatile uint8_t pick;
 uint64_t measured_clock;
 struct timespec start, end;
 int result[256];
@@ -37,12 +36,24 @@ void handler(int sig)
 		idx = i;
 		measured_clock = timed_read(&reloadbuffer[idx * STRIDE], &start, &end);
 		if(measured_clock <= 160){
-			//if(idx == 0x88 || idx == 0x99)
-				printf("%x ", idx);
+	//		if(idx == 0x88 || idx == 0x11)
+				//printf("%c %x ", idx, idx);
+			result[idx] = 1;
+		}
+	}
+	for(int i = 0; i < 256; i++){
+		if(result[i] == 1){
+			printf("%x ", i);
+		}
+	}
+	printf("\n");
+	for(int i = 0; i < 256; i++){
+		if(result[i] == 1){
+			printf("%c ", i);
 		}
 	}
 	
-	//printf("exit\n");
+	printf("\ncomplete!\n");
     exit(0);
 }
 
@@ -54,6 +65,8 @@ int main(){
     sigaction(SIGSEGV, &sa, NULL); 
 	reloadbuffer = (unsigned char *)mmap(0, RELOAD_BUF_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
 	memset(reloadbuffer, 1, sizeof(uint8_t) * RELOAD_BUF_SIZE);
+	memset(result, 0, sizeof(int) * 256);
+	register volatile uint8_t pick = 0;
 	
 
 	
@@ -62,19 +75,14 @@ int main(){
 		cacheflush(&reloadbuffer[STRIDE * i]);
 	}
 
-	memset(buf, 0x11, sizeof(char) * 4096);
-	cacheflush(&buf);
-	//pick = reloadbuffer[0x11 << 12];
 	barrier();
-	for(volatile int z = 0; z < 100; z++){
-
-	}
+	pick = 0x66;
+	memset(buf, 0x11, sizeof(unsigned char) * 4096);
+	cacheflush(buf);
 	barrier();
-	//pick = reloadbuffer[0x90 << 12];
 	*((volatile char*)0);
-	pick = reloadbuffer[*buf << 12];
+	pick = *buf;
 	NOPS(N);
+	pick = reloadbuffer[pick << 12];
 	pick = reloadbuffer[0x88 << 12];
-	//pick = reloadbuffer[0x66 << 12];
 }
-

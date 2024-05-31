@@ -1,4 +1,4 @@
-DEFAULT_N := 10
+DEFAULT_N := 105
 CC = gcc
 
 ifdef N
