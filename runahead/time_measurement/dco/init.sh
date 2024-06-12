@@ -1,7 +1,7 @@
 #!/bin/zsh
-for i in {100..1000}
+for i in {1..10}
 do	
 	make clean
-	make N=$i
-	taskset -c 1 ../../bin/dco > optpos/res_$i.txt
+	make
+	taskset -c 1 ../../bin/dco > optpos_nop/res_$i.txt
 done

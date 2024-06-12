@@ -38,7 +38,7 @@ int main(){
 		for(volatile int z = 0; z < 100; z++){}
 		isb();
         init = get_cycles();		
-		MOV(N);
+		NOPS(100);
 		asm volatile(
 			"adds x1, x1, #1\n"
 			::: "x1"
