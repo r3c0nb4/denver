@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 def read_numbers_from_file(file_path):
     with open(file_path, 'r') as file:
-        numbers = [int(line.strip()) for line in file if int(line.strip()) <= 5000]
+        numbers = [int(line.strip()) for line in file if int(line.strip()) <= 1000]
     return numbers
 
 def plot_data(file_name, numbers):
@@ -14,6 +14,10 @@ def plot_data(file_name, numbers):
     plt.xlabel('Index')
     plt.ylabel('Value')
     plt.grid(True)
+    
+    # 设置横坐标刻度，每1000一个刻度
+    plt.xticks(range(0, len(numbers), 1000))
+    plt.yticks(range(0, 1100, 100))
     plt.show()
 
 def extract_number(file_name):
@@ -21,7 +25,7 @@ def extract_number(file_name):
     return int(match.group(1)) if match else float('inf')
 
 def main():
-    directory = './optpos_2'
+    directory = './2stage'
     if not os.path.exists(directory):
         print(f'Directory {directory} does not exist.')
         return
@@ -36,3 +40,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
