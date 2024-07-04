@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc 
 
 SRC_DIR = ./
 BIN_DIR = ../bin
