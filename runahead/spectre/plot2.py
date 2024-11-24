@@ -17,7 +17,7 @@ def plot_data(file_name, numbers):
     
     # 设置横坐标刻度，每1000一个刻度
     plt.xticks(range(0, len(numbers), 1000))
-    plt.yticks(range(0, 1100, 100))
+    plt.yticks(range(0, 20, 100))
     plt.show()
 
 def extract_number(file_name):
@@ -25,13 +25,12 @@ def extract_number(file_name):
     return int(match.group(1)) if match else float('inf')
 
 def main():
-    directory = './latency'
+    directory = './correctness'
     if not os.path.exists(directory):
         print(f'Directory {directory} does not exist.')
         return
     
     files = [f for f in os.listdir(directory) if f.endswith('.txt')]
-    files.sort(key=extract_number)
 
     for file_name in files:
         file_path = os.path.join(directory, file_name)
