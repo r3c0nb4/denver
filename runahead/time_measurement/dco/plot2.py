@@ -4,20 +4,24 @@ import matplotlib.pyplot as plt
 
 def read_numbers_from_file(file_path):
     with open(file_path, 'r') as file:
-        numbers = [int(line.strip()) for line in file if int(line.strip()) <= 1000]
+        numbers = [int(line.strip()) for line in file if int(line.strip()) <= 300]
     return numbers
 
 def plot_data(file_name, numbers):
-    plt.figure(figsize=(10, 5))
-    plt.plot(numbers, marker='o')
-    plt.title(f'Data from {file_name}')
-    plt.xlabel('Index')
-    plt.ylabel('Value')
+    plt.figure(figsize=(10, 8))
+#    for i, num in enumerate(numbers):
+#        if num < 90:
+#            plt.scatter(i, num, color='red', marker='o')  # Plot in red for values below 90
+#        else:
+    plt.plot(numbers, color='blue', marker='o')  # Plot in blue for values >= 90
+    plt.title(f'Latency of redundant instructions', fontsize=20)
+    plt.xlabel('Measurement index', fontsize=18)
+    plt.ylabel('Latency in cycles', fontsize=18)
     plt.grid(True)
     
     # 设置横坐标刻度，每1000一个刻度
-    plt.xticks(range(0, len(numbers), 1000))
-    plt.yticks(range(0, 1100, 100))
+    plt.xticks(range(0, len(numbers), 1000), fontsize=16)
+    plt.yticks(range(0, 300, 30), fontsize=16)
     plt.show()
 
 def extract_number(file_name):
@@ -25,7 +29,7 @@ def extract_number(file_name):
     return int(match.group(1)) if match else float('inf')
 
 def main():
-    directory = './2stage'
+    directory = './dco_re_anti'
     if not os.path.exists(directory):
         print(f'Directory {directory} does not exist.')
         return
