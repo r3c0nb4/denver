@@ -9,11 +9,11 @@ def read_numbers_from_file(file_path):
 
 def plot_data(file_name, numbers):
     plt.figure(figsize=(10, 8))
-#    for i, num in enumerate(numbers):
+#   for i, num in enumerate(numbers):
 #        if num < 90:
 #            plt.scatter(i, num, color='red', marker='o')  # Plot in red for values below 90
 #        else:
-    plt.plot(numbers, color='blue', marker='o')  # Plot in blue for values >= 90
+    plt.plot(numbers , color='blue', marker='o')  # Plot in blue for values >= 90
     plt.title(f'Latency of redundant instructions', fontsize=20)
     plt.xlabel('Measurement index', fontsize=18)
     plt.ylabel('Latency in cycles', fontsize=18)
@@ -29,7 +29,7 @@ def extract_number(file_name):
     return int(match.group(1)) if match else float('inf')
 
 def main():
-    directory = './dco_re_anti'
+    directory = './dco_re'
     if not os.path.exists(directory):
         print(f'Directory {directory} does not exist.')
         return
