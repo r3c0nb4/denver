@@ -71,6 +71,8 @@ def count_drop_position_ranges(drop_positions):
         "5000-6000": 0,
         "6000-7000": 0,
         "7000-8000": 0,
+        "8000-9000": 0,
+        "9000-10000": 0,
     }
     
     for drop_pos in drop_positions:
@@ -88,6 +90,12 @@ def count_drop_position_ranges(drop_positions):
             ranges["5000-6000"] += 1
         elif 6000 <= drop_pos < 7000:
             ranges["6000-7000"] += 1
+        elif 7000 <= drop_pos < 8000:
+            ranges["7000-8000"] += 1
+        elif 8000 <= drop_pos < 9000:
+            ranges["8000-9000"] += 1
+        elif 9000 <= drop_pos < 10000:
+            ranges["9000-10000"] += 1
     
     return ranges
 
@@ -99,7 +107,7 @@ def print_drop_position_counts(ranges):
 
 # Main function
 def main():
-    directory = './dco_re_func'  # Specify the directory
+    directory = './dco_re'  # Specify the directory
     drop_positions = process_directory(directory)
     
     if drop_positions:
