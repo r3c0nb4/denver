@@ -38,20 +38,22 @@ def find_drop_position(numbers, threshold=100, percentage=0.9, group_size=100):
 
 def process_file(file_path):
     """Process a single file to find rise and drop points."""
-    file_name = os.path.basename(file_path)
     numbers = read_data(file_path)
     
     if not numbers:
-        print(f"{file_name}: No valid data.")
-        return None, None
+        return None, None, None  # No valid data in the file
     
     rise_position = find_rise_point(numbers)
     drop_position = find_drop_position(numbers)
     
-    return rise_position, drop_position
+    if rise_position is not None and drop_position is not None:
+        duration = drop_position - rise_position
+        return rise_position, drop_position, duration  # Return positions and duration
+    
+    return rise_position, drop_position, None  # If rise or drop not found
 
 def process_directory(directory):
-    """Process all files in the directory and collect rise/drop positions."""
+    """Process all files in the directory and collect results."""
     if not os.path.exists(directory):
         print(f"Directory {directory} does not exist.")
         return []
@@ -64,20 +66,30 @@ def process_directory(directory):
     results = []
     for file_name in txt_files:
         file_path = os.path.join(directory, file_name)
-        rise_position, drop_position = process_file(file_path)
-        results.append((file_name, rise_position, drop_position))
+        rise, drop, duration = process_file(file_path)
+        results.append((file_name, rise, drop, duration))  # Store results for each file
     
     return results
 
+def save_durations_to_file(results, output_file):
+    """Save durations to a file."""
+    with open(output_file, 'w') as file:
+        for _, _, _, duration in results:
+            if duration is not None:
+                file.write(f"{duration}\n")  # Write only valid durations
+
 def main():
     directory = './dco_re'  # Specify the directory
+    output_file = './stage/100.txt'  # Output file to save durations
+    
     results = process_directory(directory)
     
-    if results:
-        for file_name, rise, drop in results:
-            print(f"{file_name}: Rise at {rise}, Drop at {drop}, Duration: {drop - rise if rise and drop else 'N/A'}")
-    else:
-        print("No rise/drop positions found.")
+    # Print results to the console
+    for file_name, rise, drop, duration in results:
+        print(f"{file_name}: Rise at {rise}, Drop at {drop}, Duration: {duration if duration is not None else 'N/A'}")
+    
+    # Save durations to the file
+    save_durations_to_file(results, output_file)
 
 if __name__ == "__main__":
     main()

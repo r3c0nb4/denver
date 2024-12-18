@@ -50,39 +50,41 @@ def process_directory(directory):
 
 # Plot drop positions with annotations for dense y-axis regions
 def plot_drop_positions_with_density(drop_positions):
-    # Calculate the density of drop positions in y-axis bins
-    y_bins = np.linspace(0, 5000, 6)  # Define y-axis bins: [0, 1000), [1000, 2000), ...
+    # Define y-axis bins: [0, 200), [200, 400), ..., [800, 1000), [1000, 2000), ...
+    y_bins = np.concatenate((np.arange(0, 1000, 200), np.arange(2000, 3001, 1000)))
     density, _ = np.histogram(drop_positions, bins=y_bins)
+
+    # Identify the three densest regions for bins 0-1000
+    density_0_1000 = density[:5]  # Focus on bins within 0-1000
+    densest_bin_indices = np.argsort(density_0_1000)[-3:][::-1]  # Indices of the three most dense bins
     
-    # Identify the densest region
-    densest_bin_index = np.argmax(density)
-    densest_range = (y_bins[densest_bin_index], y_bins[densest_bin_index + 1])
-    densest_count = density[densest_bin_index]
-    
+    densest_ranges = [(y_bins[i], y_bins[i + 1]) for i in densest_bin_indices]
+    densest_counts = [density[i] for i in densest_bin_indices]
+
+    # Define colors for the densest regions
+    colors = ["red", "orange", "yellow"]
+
     # Create scatter plot
     plt.figure(figsize=(10, 6))
-    plt.scatter(range(len(drop_positions)), drop_positions, color='blue', label='Drop Positions')
-    
-    # Highlight the densest region
-    plt.axhspan(densest_range[0], densest_range[1], color='yellow', alpha=0.3, label='Densest Region')
-    
-    # Annotate the densest region
-    plt.text(len(drop_positions) / 2, (densest_range[0] + densest_range[1]) / 2,
-             f"Densest: {int(densest_range[0])}-{int(densest_range[1])}\nCount: {densest_count}",
-             color='black', fontsize=12, ha='center', va='center', bbox=dict(facecolor='white', alpha=0.8))
-    
+    plt.scatter(range(len(drop_positions)), drop_positions, color='blue', s=3, label='Drop Positions')
+
+    # Highlight the densest regions
+    for i, (densest_range, densest_count) in enumerate(zip(densest_ranges, densest_counts)):
+        plt.axhspan(densest_range[0], densest_range[1], color=colors[i], alpha=0.3, label=f"Region {i + 1}: {int(densest_range[0])}-{int(densest_range[1])}, Count: {densest_count}")
+
     # Configure plot appearance
-    plt.title('Scatter Plot of Drop Positions Across Files', fontsize=16)
-    plt.xlabel('File Index', fontsize=14)
-    plt.ylabel('Drop Position', fontsize=14)
-    plt.ylim(0, 10000)  # Assuming drop positions are within this range
+    plt.title('Scatter Plot of Drop Positions', fontsize=20)
+    plt.xlabel('Experiment index', fontsize=18)
+    plt.ylabel('Drop Position (drop after y iterations)', fontsize=18)
+    plt.ylim(0, 2000)  # Set y-axis range to 0-3000
+    plt.yticks(np.concatenate((np.arange(0, 1000, 200), np.arange(1000, 2000, 1000))), fontsize=16)
     plt.grid(True)
     plt.legend()
     plt.show()
 
 # Main function
 def main():
-    directory = './dco_re'  # Specify the directory
+    directory = './dco_re_store'  # Specify the directory
     drop_positions = process_directory(directory)
     
     if drop_positions:
