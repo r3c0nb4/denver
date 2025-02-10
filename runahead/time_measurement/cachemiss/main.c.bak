@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include "utils.h"
+#define STRIDE 4096
+#define ITER 4096
+
+#define NOPS(n) \
+    asm volatile( \
+        ".rept %0\n" \
+        "nop\n" \
+        ".endr\n" \
+        :: "i" (n) \
+    )
+
+#define MOV(n)	\
+	asm volatile(	\
+		".rept %0\n" \
+		"mov x10, x10\n" \
+		".endr\n"	\
+		::"i" (n): "x10" \
+	)
+
+#define REPEAT_10(x) x x x x x x x x x x 
+
+
+int main(){
+	uint8_t data0 __attribute__((aligned(4096))) = 0;
+	uint8_t data1 __attribute__((aligned(4096))) = 0;
+	uint8_t data2 __attribute__((aligned(4096))) = 0;
+    volatile uint8_t pick = 0;
+	
+	pick = data0;
+	pick = data1;
+	pick = data2;
+    uint64_t init = 0;
+    uint64_t end = 0;
+	uint8_t cycle = 0;;
+    /*
+     * chaining cache miss 
+    */
+		//func(&data0, &data1);
+	for(int i = 0; i <300; i++) {
+//		cacheflush(&data1);
+		//cacheflush(&data0);
+		for(volatile int z = 0; z < 100; z++){
+		}
+		isb();
+        init = get_cycles();
+//		pick = data1;
+//		NOPS(100);
+//		pick = data0;
+		//cycle = get_cycles() & 0XFF;
+		end = get_cycles();
+		isb();
+		printf("%ld\n", end - init);
+	}
+    return 0;
+}

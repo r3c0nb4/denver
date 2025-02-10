@@ -3,11 +3,9 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <string.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <signal.h>
 #include "utils.h"
 #define STRIDE 4096
+#define ITER 4096
 
 #define NOPS(n) \
     asm volatile( \
@@ -29,65 +27,34 @@
 #define STRIDE 4096
 #define RELOAD_BUF_SIZE STRIDE * 256
 
-static unsigned char *reloadbuffer;
+unsigned char *reloadbuffer;
 volatile unsigned char pick = 0;
 uint64_t latency;
 int idx;
-int hit[256] = {0};
-int max = 0;
-
-void handler(int sig){
-	printf("handler\n");
-	for(int i = 0; i < 256; i++){
-		idx = i;	
-		latency = cycles_read(&reloadbuffer[idx * STRIDE]);
-		if(latency < 160){
-			hit[idx]++;
-			printf("%d\n", idx);
-		}
-	}
-
-	exit(0);
-}
-
 int main(){
-
-	struct sigaction sa;
-    memset (&sa, '\0', sizeof(sa));
-    sa.sa_sigaction = (void (*)(int, siginfo_t *, void *))&handler;
-    sa.sa_flags = SA_SIGINFO;
-    sigaction(SIGSEGV, &sa, NULL);
-
 	reloadbuffer = (unsigned char *)mmap(0, RELOAD_BUF_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
 	memset(reloadbuffer, 1, sizeof(uint8_t) * RELOAD_BUF_SIZE);
-	static uint8_t data0 __attribute__((aligned(4096))) = 0;
-	uint8_t *data0_ptr = &data0;
-	uint8_t **data0_ptr_ptr = &data0_ptr;
+	uint8_t data0 __attribute__((aligned(4096))) = 0;
 	register uint8_t cycle = 0;
-	register uint64_t cnt;
-	int max1, max2;
-
-	pick = data0;
-	memset(hit, 0, sizeof(int) * 256);
+	
 	cacheflush(&data0);
 	for(int j = 0; j < 256; j++){
 		cacheflush(&reloadbuffer[STRIDE * j]);
 	}		
-
 	for(volatile int z = 0; z < 100; z++){}
 	barrier();
 	pick = data0;
-	
-	NOPS(10);
-	
-	asm volatile("mrs %0, cntvct_el0" : "=r" (cnt));
-	*((volatile char*)0);
-	*((volatile char*)1);
-	cycle = cnt & 0xFF;
-	
-	NOPS(40);
+	NOPS(30);
+	cycle = get_cycles() & 0XFF;
 	pick = reloadbuffer[cycle << 12];
 
-
+	for(int i = 0; i < 256; i++){
+		idx = ((i * 167) + 13) & 255;	
+		latency = cycles_read(&reloadbuffer[idx * STRIDE]);
+		if(latency < 150){
+			printf("%d\n", idx);
+		}
+	}
+	printf("Architectural execution result: %u\n\n", cycle);
     return 0;
 }

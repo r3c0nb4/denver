@@ -12,10 +12,10 @@ TARGET = $(BIN_DIR)/cachemiss
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -g $(OBJS) -o $@ -I ../../include
+	$(CC) $(CFLAGS) -g $(OBJS) -o $@ -I ../../include -lpthread
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -g -c $< -o $@ -I ../../include
+	$(CC) $(CFLAGS) -g -c $< -o $@ -I ../../include -lpthread
 
 clean:
 	rm -f $(OBJS) $(TARGET)
