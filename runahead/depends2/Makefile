@@ -21,10 +21,10 @@ CFLAGS = -DN=$(REPEAT_N) -g -I ../include -fPIC
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@
+	$(CC) $(CFLAGS) $(OBJS) -O0 -o $@
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -O0 -c $< -o $@
 
 clean:
 	rm -f $(OBJS) $(TARGET)

