@@ -7,7 +7,7 @@ do
 	K=$((i % 10))
     make CFLAGS="-DN=${K}"
 
-	taskset -c 2 ../bin/spectre
+	taskset -c 2 ../bin/fringerprint
 #	taskset -c 1 ../bin/spectre >> ./correctness/res.txt
 	
 	count=$((count + 1))

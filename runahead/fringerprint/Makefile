@@ -5,7 +5,7 @@ BIN_DIR = ../bin
 
 SRCS = $(wildcard $(SRC_DIR)/*.c)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%.o, $(SRCS))
-TARGET = $(BIN_DIR)/spectre
+TARGET = $(BIN_DIR)/fringerprint
 
 .PHONY: all clean
 
